@@ -1,0 +1,6 @@
+pylab
+numpy
+math
+scipy
+functools
+coolprop
