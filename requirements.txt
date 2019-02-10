@@ -1,4 +1,4 @@
-pylab
+matplotlib
 numpy
 math
 scipy
