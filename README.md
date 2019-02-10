@@ -11,6 +11,8 @@ Please refer to the [original paper](http://dx.doi.org/10.1115/1.4003742) for a 
 ## Getting Started
 
 The easiest way is to use the included jupyter notebook (DWCmod.ipnb) and modify the input values as needed. 
+Click here to run the notebook in your browser: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/JSablowski/DWCmod/master?filepath=DWCmod.ipynb)
+
 All thermodynamic calculationsc are done in DWC_models.py. DWC_plotting.py contains some basic plotting functions.
 
 The following non-standard python packages are required:
