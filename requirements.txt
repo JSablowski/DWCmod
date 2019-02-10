@@ -1,6 +1,4 @@
 matplotlib
 numpy
-math
 scipy
-functools
 coolprop
