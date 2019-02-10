@@ -32,3 +32,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 \[1\] Bell, I. H., Wronski, J., Quoilin, S., & Lemort, V. (2014). Pure and Pseudo-pure Fluid Thermophysical Property Evaluation and the Open-Source Thermophysical Property Library CoolProp. *Industrial & Engineering Chemistry Research, 53*(6), 2498–2508. https://doi.org/10.1021/ie4033999
 
 \[2\] Kim, S., & Kim, K. J. (2011). Dropwise Condensation Modeling Suitable for Superhydrophobic Surfaces. *Journal of Heat Transfer, 133*(8), 081502–081502. https://doi.org/10.1115/1.4003742
+
+You can refer to this repository using the following DOI: [![DOI](https://zenodo.org/badge/169960611.svg)](https://zenodo.org/badge/latestdoi/169960611)
