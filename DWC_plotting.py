@@ -10,8 +10,10 @@ Created on Thu Feb  7 09:07:39 2019
 import math
 import pylab as plt
 import numpy as np
-import DWC_models as DWCmod
-
+try:
+    from . import DWC_models as DWCmod
+except:
+    import DWC_models as DWCmod
 
 # some input parameters to use as a fallback if no other parameters are given
 # most values as given in: Kim, S., & Kim, K. J. (2011). Dropwise Condensation Modeling Suitable for Superhydrophobic Surfaces. Journal of Heat Transfer, 133(8), 081502–081502. https://doi.org/10.1115/1.4003742
