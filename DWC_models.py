@@ -118,10 +118,12 @@ def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10, Thet
     return q, q_n, q_N, r_min, r_e, r_max, Q_drop, n, N        
 
 
-def init_parameters(Theta_a, Theta_r, Theta, CAH, p_steam, h_i, medium, N_s):
+def init_parameters(Theta, CAH, p_steam, h_i, medium, N_s, **kwargs):
     '''
     converts all input parameters to SI-units, calculates fluid properties using CoolProp
     '''
+    Theta_a = kwargs.get("Theta_a")
+    Theta_r = kwargs.get("Theta_r")    
     # calculates advancing and receding contact angles from CAH
     if not Theta_a:
         Theta_a = Theta + 0.5*CAH
@@ -165,19 +167,112 @@ def deltaT_drop_KimKim(r, deltaT_sub, r_min, delta_coat, k_coat, k_c, Theta, h_i
     return deltaT_drop  
 
 
-def deltaT_i_KimKim(r, deltaT_sub, r_min, delta_coat, k_coat, k_c, Theta, h_i):
-    ''' temperature drop due to the vapor-liquid interfacial resistance '''
-    deltaT_i = Q_drop_KimKim(r, deltaT_sub, r_min, delta_coat, k_coat, k_c, Theta, h_i) \
-    / (2*h_i*math.pi*r**2*(1-math.cos(Theta)))
-    return deltaT_i  
+def R_total(deltaT_sub, Q_drop):
+    ''' total thermal resistance of a single drop
+    
+    Parameters
+    ----------
+    deltaT_sub: float
+                temperature difference to the cooled wall in K
+    Q_drop:     float
+                rate of heat flow through drop in W
+    
+    Returns
+    ----------
+    R_total:    float
+                total thermal resistance of drop in K/W
+    '''
+    R_total = deltaT_sub / Q_drop
+    return R_total
 
 
-def deltaT_curv_KimKim(r, deltaT_sub, r_min):
-    ''' temperature drop due to the drop curvature '''
-    deltaT_curv = r_min/r * deltaT_sub
-    return deltaT_curv  
+def R_iphase(h_i, radius, Theta):
+    ''' interafacial thermal resistance of a single drop 
+    
+    Parameters
+    ----------
+    h_i:        float            
+                interfacial heat transfer coefficient in MW/m²K
+    radius:     float
+                radius of drop in m
+    Theta:      float    
+                static contact angle in deg                   
+    
+    Returns
+    ----------
+    R_iphase:   float
+                interafacial thermal resistance of drop in K/W
+    '''
+    R_iphase = 1/ (2*h_i*1000*1000*math.pi*radius**2*(1-math.cos(math.radians(Theta))))
+    return R_iphase
+
+def R_cond(k_c, radius, Theta):
+    ''' thermal resistance due to conduction through a single drop 
+    
+    Parameters
+    ----------
+    k_c:        float            
+                thermal conductivity of condensate in W/mK
+    radius:     float
+                radius of drop in m
+    Theta:      float    
+                static contact angle in deg                   
+    
+    Returns
+    ----------
+    R_cond:     float
+                thermal resistance due to conduction through a single drop in K/W
+    '''
+    R_cond = math.radians(Theta) / (4*math.pi*radius*k_c*math.sin(math.radians(Theta)))
+    return R_cond
 
 
+def R_coat(delta_coat, k_coat, radius, Theta):
+    ''' thermal resistance due to conduction through coating layer 
+    
+    Parameters
+    ----------
+    k_coat:     float
+                thermal conductivity of the coating in W/(mK)
+    delta_coat: float
+                thickness of the coating in m
+    radius:     float
+                radius of drop in m
+    Theta:      float    
+                static contact angle in deg                   
+    
+    Returns
+    ----------
+    R_coat:     float
+                thermal resistance due to conduction through coating layer in K/W
+    '''
+    R_coat = delta_coat / (k_coat*math.pi*radius**2*(math.sin(math.radians(Theta)))**2)
+    return R_coat
+
+
+def R_curv(deltaT_sub, r_min, radius, Q_drop):
+    ''' thermal resistance due drop curvature
+    
+    Parameters
+    ----------
+    deltaT_sub: float
+                temperature difference to the cooled wall in K
+    r_min:      float      
+                minimum droplet radius in m    
+    radius:     float
+                radius of drop in m
+    Q_drop:     float
+                rate of heat flow through drop in W                
+    
+    Returns
+    ----------
+    R_curv:     float
+                thermal resistance due drop curvature in K/W
+    '''    
+    R_curv = (deltaT_sub*r_min / radius) / Q_drop
+    return R_curv  
+    
+    
 def n_KimKim(r, deltaT_sub, r_min, delta_coat, k_coat, k_c, Theta, h_i, rho, h_fg, r_e, r_max):
     ''' drop size distributions small drops '''
     A_1 = deltaT_sub / (2*rho*h_fg)

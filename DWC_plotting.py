@@ -8,7 +8,7 @@ Created on Thu Feb  7 09:07:39 2019
 """
 
 import math
-import pylab as plt
+import matplotlib.pyplot as plt
 import numpy as np
 try:
     from . import DWC_models as DWCmod
@@ -96,6 +96,44 @@ def plot_qdrop_theta_r(input_params=KimKim2011, model="KimKim2011", radii = [0.0
         axs.append(plt.plot(Theta, q_d, label="r = " + str(r*1000000) + r"$\ \mu m$"))
     plt.ylabel(r"$\.q_{drop} \ in \ kW/m^2$")
     plt.xlabel(r"$\theta \ in \ deg$")
+    plt.show()
+    return fig
+
+
+def plot_Rdrop(input_params=KimKim2011, model="KimKim2011"):
+    """ plot heat transfer resistances over droplet radius
+    """
+    DWC = choose_model(model)
+    l_radius = np.linspace(0.00000001, 0.001, 100)
+    input_params = input_params.copy()                  # avoid changing global input_params    
+    k_c = DWCmod.init_parameters(**input_params)[7]     # calculate thermal conductivity of condenate
+    fig = plt.figure()
+    R_total = []
+    R_iphase = [] 
+    R_cond = []
+    R_coat = []
+    R_curv = []
+    r_e = DWC(**input_params)[4]
+    r_min = DWC(**input_params)[3]
+    for radius in l_radius:
+        Q_drop = DWC(**input_params)[6]
+        R_total.append(DWCmod.R_total(deltaT_sub=input_params["deltaT_sub"], Q_drop=Q_drop(radius)))
+        R_iphase.append(DWCmod.R_iphase(h_i=input_params["h_i"], radius=radius, Theta=input_params["Theta"]))
+        R_cond.append(DWCmod.R_cond(k_c=k_c, radius=radius, Theta=input_params["Theta"]))
+        R_coat.append(DWCmod.R_coat(delta_coat=input_params["delta_coat"], k_coat=input_params["k_coat"], radius=radius, Theta=input_params["Theta"]))
+        R_curv.append(DWCmod.R_curv(deltaT_sub=input_params["deltaT_sub"], r_min=r_min, radius=radius, Q_drop=Q_drop(radius)))
+    plt.plot(l_radius, R_total, "--", label=r"$R_{total}$")
+    plt.plot(l_radius, R_iphase, label=r"$R_{interphase}$")
+    plt.plot(l_radius, R_curv, label=r"$R_{curvature}$")
+    plt.plot(l_radius, R_cond, label=r"$R_{conduction}$")
+    plt.plot(l_radius, R_coat, label=r"$R_{coating}$")
+    plt.axvline(x=r_e,  label="r_e")
+    plt.yscale("log")
+    plt.xscale("log")
+    plt.legend()
+    plt.ylabel("R in K/W")
+    plt.xlabel("r in m")
+    plt.ylim(top=10**11)
     plt.show()
     return fig
 
@@ -261,17 +299,89 @@ def plot_q_deltaTsub(input_params=KimKim2011, model="KimKim2011", **kwargs):
     c:              list of floats, optional
                     constants c for which a graph should be drawn    
     h_i:            list of floats, optional
-                    interfacial heat transfer coefficients in MW/m²K for which a graph should be drawn     
+                    interfacial heat transfer coefficients in MW/m²K for which a graph should be drawn   
+    CAH:            list of floats, optional
+                    contact angle hystereses in deg for which a graph should be drawn 
+    N_s:            list of floats, optional
+                    number of nucleation sites per unit area in 10^9 1/m² for which a graph should be drawn                                      
     """
     theta = kwargs.get("theta", [input_params["Theta"]])
     c = kwargs.get("c")
     h_i = kwargs.get("h_i")
+    CAH = kwargs.get("CAH")
+    N_s = kwargs.get("N_s")
     if c:
         fig = plot_q_deltaTsub_c(input_params, model, c=c)
     elif h_i:
         fig = plot_q_deltaTsub_h_i(input_params, model, h_i=h_i)
+    elif CAH:
+        fig = plot_q_deltaTsub_CAH(input_params, model, CAH=CAH)
+    elif N_s:
+        fig = plot_q_deltaTsub_Ns(input_params, model, N_s=N_s)
     else:
         fig = plot_q_deltaTsub_theta(input_params, model, theta=theta)
+    return fig
+
+
+def plot_q_deltaTsub_Ns(input_params=KimKim2011, model="KimKim2011", N_s = [150, 250, 350]):
+    """ plot the heat flux vs. the surface subcooling temperature for specific nucleation site densities.
+
+    Parameters
+    ----------
+    input_params:   dict
+                    input parameters for the DWC model
+    model:          str
+                    name of the model that should be used
+    N_s:            list of floats
+                    number of nucleation sites per unit area in 10^9 1/m² for which a graph should be drawn
+    """
+    DWC = choose_model(model)
+    input_params = input_params.copy()      # avoid changing global input_params
+    deltaT_sub = np.linspace(0.1,10,20)
+    axs = []
+    fig = plt.figure()
+    for y in N_s:
+        input_params["N_s"]=y
+        q = []
+        for x in deltaT_sub:
+            input_params["deltaT_sub"]=x      
+            q.append(DWC(**input_params)[0]/1000)
+        axs.append(plt.plot(deltaT_sub, q, label=r"$N_s\ =$" + str(input_params["N_s"]) + r"$\ \cdot 10^9 \ m^{-2}$"))
+    plt.ylabel(r"$\.q \ in \ kW/m^2$")
+    plt.xlabel(r"$\Delta T \ in \ K$")
+    plt.legend()  
+    #plt.show()
+    return fig
+
+
+def plot_q_deltaTsub_CAH(input_params=KimKim2011, model="KimKim2011", CAH = [5, 10, 30]):
+    """ plot the heat flux vs. the surface subcooling temperature for specific contact angle hystereses.
+
+    Parameters
+    ----------
+    input_params:   dict
+                    input parameters for the DWC model
+    model:          str
+                    name of the model that should be used
+    theta:          list of floats
+                    contact angle hystereses in deg for which a graph should be drawn
+    """
+    DWC = choose_model(model)
+    input_params = input_params.copy()      # avoid changing global input_params
+    deltaT_sub = np.linspace(0.1,10,20)
+    axs = []
+    fig = plt.figure()
+    for y in CAH:
+        input_params["CAH"]=y
+        q = []
+        for x in deltaT_sub:
+            input_params["deltaT_sub"]=x      
+            q.append(DWC(**input_params)[0]/1000)
+        axs.append(plt.plot(deltaT_sub, q, label="CAH = " + str(input_params["CAH"]) + "°"))
+    plt.ylabel(r"$\.q \ in \ kW/m^2$")
+    plt.xlabel(r"$\Delta T \ in \ K$")
+    plt.legend()  
+    #plt.show()
     return fig
 
 
@@ -329,7 +439,7 @@ def plot_q_deltaTsub_c(input_params=KimKim2011, model="KimKim2011", c = [0.1, 0.
         for x in deltaT_sub:
             input_params["deltaT_sub"]=x      
             q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(deltaT_sub, q, label="c = " + str(input_params["c"]) + "°"))
+        axs.append(plt.plot(deltaT_sub, q, label="c = " + str(input_params["c"])))
     plt.ylabel(r"$\.q \ in \ kW/m^2$")
     plt.xlabel(r"$\Delta T \ in \ K$")
     plt.legend()  
