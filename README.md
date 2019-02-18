@@ -16,7 +16,7 @@ Click here to run the notebook in your browser: [![Binder](https://mybinder.org/
 All thermodynamic calculationsc are done in DWC_models.py. DWC_plotting.py contains some basic plotting functions.
 
 The following non-standard python packages are required:
-* pylab
+* matplotlib
 * numpy 
 * scipy
 * coolprop
