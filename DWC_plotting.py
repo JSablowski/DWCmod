@@ -261,7 +261,9 @@ def plot_q_deltaTsub(input_params=KimKim2011, model="KimKim2011", **kwargs):
     c:              list of floats, optional
                     constants c for which a graph should be drawn    
     h_i:            list of floats, optional
-                    interfacial heat transfer coefficients in MW/m²K for which a graph should be drawn     
+                    interfacial heat transfer coefficients in MW/m²K for which a graph should be drawn   
+    CAH:            list of floats, optional
+                    contact angle hystereses in deg for which a graph should be drawn 
     """
     theta = kwargs.get("theta", [input_params["Theta"]])
     c = kwargs.get("c")
@@ -363,7 +365,7 @@ def plot_q_deltaTsub_c(input_params=KimKim2011, model="KimKim2011", c = [0.1, 0.
         for x in deltaT_sub:
             input_params["deltaT_sub"]=x      
             q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(deltaT_sub, q, label="c = " + str(input_params["c"]) + "°"))
+        axs.append(plt.plot(deltaT_sub, q, label="c = " + str(input_params["c"])))
     plt.ylabel(r"$\.q \ in \ kW/m^2$")
     plt.xlabel(r"$\Delta T \ in \ K$")
     plt.legend()  
