@@ -266,12 +266,46 @@ def plot_q_deltaTsub(input_params=KimKim2011, model="KimKim2011", **kwargs):
     theta = kwargs.get("theta", [input_params["Theta"]])
     c = kwargs.get("c")
     h_i = kwargs.get("h_i")
+    CAH = kwargs.get("CAH")
     if c:
         fig = plot_q_deltaTsub_c(input_params, model, c=c)
     elif h_i:
         fig = plot_q_deltaTsub_h_i(input_params, model, h_i=h_i)
+    elif CAH:
+        fig = plot_q_deltaTsub_CAH(input_params, model, CAH=CAH)
     else:
         fig = plot_q_deltaTsub_theta(input_params, model, theta=theta)
+    return fig
+
+
+def plot_q_deltaTsub_CAH(input_params=KimKim2011, model="KimKim2011", CAH = [5, 10, 30]):
+    """ plot the heat flux vs. the surface subcooling temperature for specific contact angle hystereses.
+
+    Parameters
+    ----------
+    input_params:   dict
+                    input parameters for the DWC model
+    model:          str
+                    name of the model that should be used
+    theta:          list of floats
+                    contact angle hystereses in deg for which a graph should be drawn
+    """
+    DWC = choose_model(model)
+    input_params = input_params.copy()      # avoid changing global input_params
+    deltaT_sub = np.linspace(0.1,10,20)
+    axs = []
+    fig = plt.figure()
+    for y in CAH:
+        input_params["CAH"]=y
+        q = []
+        for x in deltaT_sub:
+            input_params["deltaT_sub"]=x      
+            q.append(DWC(**input_params)[0]/1000)
+        axs.append(plt.plot(deltaT_sub, q, label="CAH = " + str(input_params["CAH"]) + "°"))
+    plt.ylabel(r"$\.q \ in \ kW/m^2$")
+    plt.xlabel(r"$\Delta T \ in \ K$")
+    plt.legend()  
+    #plt.show()
     return fig
 
 
