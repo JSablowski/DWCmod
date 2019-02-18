@@ -8,7 +8,7 @@ Created on Thu Feb  7 09:07:39 2019
 """
 
 import math
-import pylab as plt
+import matplotlib.pyplot as plt
 import numpy as np
 try:
     from . import DWC_models as DWCmod
@@ -96,6 +96,44 @@ def plot_qdrop_theta_r(input_params=KimKim2011, model="KimKim2011", radii = [0.0
         axs.append(plt.plot(Theta, q_d, label="r = " + str(r*1000000) + r"$\ \mu m$"))
     plt.ylabel(r"$\.q_{drop} \ in \ kW/m^2$")
     plt.xlabel(r"$\theta \ in \ deg$")
+    plt.show()
+    return fig
+
+
+def plot_Rdrop(input_params=KimKim2011, model="KimKim2011"):
+    """ plot heat transfer resistances over droplet radius
+    """
+    DWC = choose_model(model)
+    l_radius = np.linspace(0.00000001, 0.001, 100)
+    input_params = input_params.copy()                  # avoid changing global input_params    
+    k_c = DWCmod.init_parameters(**input_params)[7]     # calculate thermal conductivity of condenate
+    fig = plt.figure()
+    R_total = []
+    R_iphase = [] 
+    R_cond = []
+    R_coat = []
+    R_curv = []
+    r_e = DWC(**input_params)[4]
+    r_min = DWC(**input_params)[3]
+    for radius in l_radius:
+        Q_drop = DWC(**input_params)[6]
+        R_total.append(DWCmod.R_total(deltaT_sub=input_params["deltaT_sub"], Q_drop=Q_drop(radius)))
+        R_iphase.append(DWCmod.R_iphase(h_i=input_params["h_i"], radius=radius, Theta=input_params["Theta"]))
+        R_cond.append(DWCmod.R_cond(k_c=k_c, radius=radius, Theta=input_params["Theta"]))
+        R_coat.append(DWCmod.R_coat(delta_coat=input_params["delta_coat"], k_coat=input_params["k_coat"], radius=radius, Theta=input_params["Theta"]))
+        R_curv.append(DWCmod.R_curv(deltaT_sub=input_params["deltaT_sub"], r_min=r_min, radius=radius, Q_drop=Q_drop(radius)))
+    plt.plot(l_radius, R_total, "--", label=r"$R_{total}$")
+    plt.plot(l_radius, R_iphase, label=r"$R_{interphase}$")
+    plt.plot(l_radius, R_curv, label=r"$R_{curvature}$")
+    plt.plot(l_radius, R_cond, label=r"$R_{conduction}$")
+    plt.plot(l_radius, R_coat, label=r"$R_{coating}$")
+    plt.axvline(x=r_e,  label="r_e")
+    plt.yscale("log")
+    plt.xscale("log")
+    plt.legend()
+    plt.ylabel("R in K/W")
+    plt.xlabel("r in m")
+    plt.ylim(top=10**11)
     plt.show()
     return fig
 
