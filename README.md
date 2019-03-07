@@ -11,7 +11,7 @@ Please refer to the [original paper](http://dx.doi.org/10.1115/1.4003742) for a 
 ## Getting Started
 
 The easiest way is to use the included jupyter notebook (DWCmod.ipnb) and modify the input values as needed. 
-Click here to run the notebook in your browser: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/JSablowski/DWCmod/master?filepath=DWCmod.ipynb)
+You can run the notebook directly in your browser via mybinder.org: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/JSablowski/DWCmod/master?filepath=DWCmod.ipynb)
 
 All thermodynamic calculationsc are done in DWC_models.py. DWC_plotting.py contains some basic plotting functions.
 
@@ -33,4 +33,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 \[2\] Kim, S., & Kim, K. J. (2011). Dropwise Condensation Modeling Suitable for Superhydrophobic Surfaces. *Journal of Heat Transfer, 133*(8), 081502–081502. https://doi.org/10.1115/1.4003742
 
-You can refer to this repository using the following DOI: [![DOI](https://zenodo.org/badge/169960611.svg)](https://zenodo.org/badge/latestdoi/169960611)
+You can refer to the latest version of DWCmod and to this repository using the following DOI: [![DOI](https://zenodo.org/badge/169960611.svg)](https://zenodo.org/badge/latestdoi/169960611)

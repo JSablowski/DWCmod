@@ -79,8 +79,8 @@ def plot_qdrop_theta_r(input_params=KimKim2011, model="KimKim2011", radii = [0.0
             input_params["Theta"]=x  
             Q_drop = DWC(**input_params)[6]
             Q_d.append(Q_drop(r)*1000)  # Q in mW
-        axs.append(plt.plot(Theta, Q_d, label="r = " + str(r*1000000) + r"$\ \mu m$"))
-    plt.ylabel(r"$\.Q_{drop} \ in \ mW$")
+        axs.append(plt.plot(Theta, Q_d, label=r"$r = $" + str(r*1000000) + r"$\ \mathrm{\mu m}$"))
+    plt.ylabel(r"$\.Q_{\mathrm{drop}} \ \mathrm{in \ mW}$")
     plt.legend()
     # heat flux
     axs = []
@@ -94,8 +94,8 @@ def plot_qdrop_theta_r(input_params=KimKim2011, model="KimKim2011", radii = [0.0
             A = math.pi * r**2 * (math.sin(math.radians(x)))**2  # contact area between droplet and surface in m²
             q_d.append(Q_drop(r)/A/1000)                         # q in kW/m²  
         axs.append(plt.plot(Theta, q_d, label="r = " + str(r*1000000) + r"$\ \mu m$"))
-    plt.ylabel(r"$\.q_{drop} \ in \ kW/m^2$")
-    plt.xlabel(r"$\theta \ in \ deg$")
+    plt.ylabel(r"$\.q_{\mathrm{drop}} \ \mathrm{in \ kW/m^2}$")
+    plt.xlabel(r"$\theta$ in deg")
     plt.show()
     return fig
 
@@ -122,17 +122,17 @@ def plot_Rdrop(input_params=KimKim2011, model="KimKim2011"):
         R_cond.append(DWCmod.R_cond(k_c=k_c, radius=radius, Theta=input_params["Theta"]))
         R_coat.append(DWCmod.R_coat(delta_coat=input_params["delta_coat"], k_coat=input_params["k_coat"], radius=radius, Theta=input_params["Theta"]))
         R_curv.append(DWCmod.R_curv(deltaT_sub=input_params["deltaT_sub"], r_min=r_min, radius=radius, Q_drop=Q_drop(radius)))
-    plt.plot(l_radius, R_total, "--", label=r"$R_{total}$")
-    plt.plot(l_radius, R_iphase, label=r"$R_{interphase}$")
-    plt.plot(l_radius, R_curv, label=r"$R_{curvature}$")
-    plt.plot(l_radius, R_cond, label=r"$R_{conduction}$")
-    plt.plot(l_radius, R_coat, label=r"$R_{coating}$")
-    plt.axvline(x=r_e,  label="r_e")
+    plt.plot(l_radius, R_total, "--", label=r"$R_{\mathrm{total}}$")
+    plt.plot(l_radius, R_iphase, label=r"$R_{\mathrm{interphase}}$")
+    plt.plot(l_radius, R_curv, label=r"$R_{\mathrm{curvature}}$")
+    plt.plot(l_radius, R_cond, label=r"$R_{\mathrm{conduction}}$")
+    plt.plot(l_radius, R_coat, label=r"$R_{\mathrm{coating}}$")
+    plt.axvline(x=r_e,  label=r"$r_e$")
     plt.yscale("log")
     plt.xscale("log")
     plt.legend()
-    plt.ylabel("R in K/W")
-    plt.xlabel("r in m")
+    plt.ylabel(r"$R \ \mathrm{in \ K/W}$")
+    plt.xlabel(r"$r \ \mathrm{in \ m}$")
     plt.ylim(top=10**11)
     plt.show()
     return fig
@@ -179,8 +179,8 @@ def plot_q_theta_CAH(input_params=KimKim2011, model="KimKim2011", CAH = [3, 5, 1
             input_params["Theta"]=x      
             q.append(DWC(**input_params)[0]/1000)
         axs.append(plt.plot(Theta, q, label="CAH = " + str(input_params["CAH"]) + "°"))
-    plt.ylabel(r"$\.q \ in \ kW/m^2$")
-    plt.xlabel(r"$\theta \ in \ deg$")
+    plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
+    plt.xlabel(r"$\theta \ \mathrm{in \ deg}$")
     plt.legend()
     plt.show()    
     return fig
@@ -236,12 +236,12 @@ def plot_Nr_r_theta(input_params=KimKim2011, model="KimKim2011", theta = [90, 12
         N = [N(x) for x in r_N]
         r_ges = np.append(r_n, r_N)
         n_ges = np.append(n, N)
-        axs.append(plt.loglog(r_ges , n_ges, label="Theta = " + str(input_params["Theta"]) + "°"))    
-    plt.ylabel(r"$n(r) \ and \ N(r) \ in \ m^{-3}$")
-    plt.xlabel(r"$r \ in \ m$")
+        axs.append(plt.loglog(r_ges , n_ges, label=r"$\theta =$" + str(input_params["Theta"]) + "°"))    
+    plt.ylabel(r"$n(r) \ \mathrm{and} \ N(r) \ \mathrm{in \ m^{-3}}$")
+    plt.xlabel(r"$r \ \mathrm{in \ m}$")
     plt.xlim(right = r_max)
     plt.ylim(bottom = 10**(8), top = 10**18)
-    plt.axvline(x=r_e,  label="r_e")
+    plt.axvline(x=r_e,  label=r"$r_e$")
     plt.legend()
     plt.show()
     return fig             
@@ -275,11 +275,11 @@ def plot_Nr_r_CAH(input_params=KimKim2011, model="KimKim2011", CAH = [3, 10, 40]
         r_ges = np.append(r_n, r_N)
         n_ges = np.append(n, N)
         axs.append(plt.loglog(r_ges , n_ges, label="CAH = " + str(input_params["CAH"]) + "°"))    
-    plt.ylabel(r"$n(r) \ and \ N(r) \ in \ m^{-3}$")
-    plt.xlabel(r"$r \ in \ m$")
+    plt.ylabel(r"$n(r) \ \mathrm{and} \ N(r) \ \mathrm{in \ m^{-3}}$")
+    plt.xlabel(r"$r \ \mathrm{in \ m}$")
     plt.xlim(right = r_max)
     plt.ylim(bottom = 10**(8), top = 10**18)
-    plt.axvline(x=r_e,  label="r_e")
+    plt.axvline(x=r_e,  label=r"$r_e$")
     plt.legend()
     plt.show()
     return fig        
@@ -346,11 +346,10 @@ def plot_q_deltaTsub_Ns(input_params=KimKim2011, model="KimKim2011", N_s = [150,
         for x in deltaT_sub:
             input_params["deltaT_sub"]=x      
             q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(deltaT_sub, q, label=r"$N_s\ =$" + str(input_params["N_s"]) + r"$\ \cdot 10^9 \ m^{-2}$"))
-    plt.ylabel(r"$\.q \ in \ kW/m^2$")
-    plt.xlabel(r"$\Delta T \ in \ K$")
+        axs.append(plt.plot(deltaT_sub, q, label=r"$N_s =$" + str(input_params["N_s"]) + r"$\ \cdot 10^9 \ \mathrm{m^{-2}}$"))
+    plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
+    plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
     plt.legend()  
-    #plt.show()
     return fig
 
 
@@ -378,10 +377,9 @@ def plot_q_deltaTsub_CAH(input_params=KimKim2011, model="KimKim2011", CAH = [5, 
             input_params["deltaT_sub"]=x      
             q.append(DWC(**input_params)[0]/1000)
         axs.append(plt.plot(deltaT_sub, q, label="CAH = " + str(input_params["CAH"]) + "°"))
-    plt.ylabel(r"$\.q \ in \ kW/m^2$")
-    plt.xlabel(r"$\Delta T \ in \ K$")
+    plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
+    plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
     plt.legend()  
-    #plt.show()
     return fig
 
 
@@ -408,9 +406,9 @@ def plot_q_deltaTsub_theta(input_params=KimKim2011, model="KimKim2011", theta = 
         for x in deltaT_sub:
             input_params["deltaT_sub"]=x      
             q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(deltaT_sub, q, label="Theta = " + str(input_params["Theta"]) + "°"))
-    plt.ylabel(r"$\.q \ in \ kW/m^2$")
-    plt.xlabel(r"$\Delta T \ in \ K$")
+        axs.append(plt.plot(deltaT_sub, q, label=r"$\theta = $" + str(input_params["Theta"]) + "°"))
+    plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
+    plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
     plt.legend()  
     #plt.show()
     return fig
@@ -439,9 +437,9 @@ def plot_q_deltaTsub_c(input_params=KimKim2011, model="KimKim2011", c = [0.1, 0.
         for x in deltaT_sub:
             input_params["deltaT_sub"]=x      
             q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(deltaT_sub, q, label="c = " + str(input_params["c"])))
-    plt.ylabel(r"$\.q \ in \ kW/m^2$")
-    plt.xlabel(r"$\Delta T \ in \ K$")
+        axs.append(plt.plot(deltaT_sub, q, label=r"$c = $" + str(input_params["c"])))
+    plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
+    plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
     plt.legend()  
     plt.show()
     return fig
@@ -470,9 +468,9 @@ def plot_q_deltaTsub_h_i(input_params=KimKim2011, model="KimKim2011", h_i = [0.1
         for x in deltaT_sub:
             input_params["deltaT_sub"]=x      
             q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(deltaT_sub, q, label="h_i = " + str(input_params["h_i"]) + " MW/m²K"))
-    plt.ylabel(r"$\.q \ in \ kW/m^2$")
-    plt.xlabel(r"$\Delta T \ in \ K$")
+        axs.append(plt.plot(deltaT_sub, q, label=r"$h_i = $" + str(input_params["h_i"]) + " MW/m²K"))
+    plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
+    plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
     plt.legend()  
     plt.show()
     return fig
