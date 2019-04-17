@@ -13,7 +13,9 @@ import scipy.integrate as integrate
 from functools import partial
 
 
-def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10, Theta_a=None, Theta_r=None, k_coat=15, delta_coat=0, h_i=None, c=1, N_s=250, print_properties=False):
+def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10, \
+               Theta_a=None, Theta_r=None, k_coat=15, delta_coat=0, h_i=None, \
+               c=1, N_s=250, print_properties=False, **kwargs):
     """ 
     main function, calculates dropwise condensation heat flux as described in: 
     Kim, S., & Kim, K. J. (2011). Dropwise Condensation Modeling Suitable for Superhydrophobic Surfaces. Journal of Heat Transfer, 133(8), 081502–081502. https://doi.org/10.1115/1.4003742
@@ -47,7 +49,10 @@ def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10, Thet
                 number of Nucleation sites in 10^9 1/m² 
     print_properties: bool
                 if set to true, calculated fluid properties are printed
-    
+    r_lower: float, optional
+                sets a lower boundary for the heat flux calculation, only droplets with a larger radii are considered  
+    r_upper: float, optional
+                sets an upper boundary for the heat flux calculation, only droplets with a smaller radii are considered
     Returns
     ----------
     q:          float
@@ -69,6 +74,9 @@ def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10, Thet
     N:          partial function
                 drop size distribuion for large drops depending on drop radius r in m 
     """
+    # get kwargs
+    r_lower = kwargs.get("r_lower", False)
+    r_upper = kwargs.get("r_upper", False)
     # prepare input parameters
     Theta, Theta_a, Theta_r, h_i, N_s, T_sat, sigma, k_c, h_fg, rho, g, R_s, rho_g \
     = init_parameters(Theta_a=Theta_a, Theta_r=Theta_r, Theta=Theta, \
@@ -99,8 +107,19 @@ def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10, Thet
         '''large drops'''
         Q_drop_N = Q_drop(r) * N(r)
         return Q_drop_N
-    q_n, q_n_interr = integrate.quad(Q_drop_n, r_min, r_e)
-    q_N, q_N_interr = integrate.quad(Q_drop_N, r_e, r_max)
+    # optional boundaries for integration
+    if not r_lower:
+        r_lower = r_min
+    if not r_upper:
+        r_upper = r_max
+    if r_lower < r_e:    
+        q_n, q_n_interr = integrate.quad(Q_drop_n, r_lower, r_e)
+    else:
+        q_n = 0
+    if r_upper > r_e:
+        q_N, q_N_interr = integrate.quad(Q_drop_N, r_e, r_upper)        
+    else:
+        q_N = 0
     q = q_n + q_N
     # optional output of calculated fluid properties
     if print_properties:
