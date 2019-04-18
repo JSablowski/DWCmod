@@ -244,7 +244,7 @@ def plot_Nr_r_theta(input_params=KimKim2011, model="KimKim2011", theta = [90, 12
     plt.xlabel(r"$r \ \mathrm{in \ m}$")
     plt.xlim(right = r_max)
     plt.ylim(bottom = 10**(8), top = 10**18)
-    plt.axvline(x=r_e,  label=r"$r_e$")
+    plt.axvline(x=r_e,  label=r"$r_{\mathrm{e}}$")
     plt.legend()
     plt.show()
     return fig             
@@ -282,7 +282,7 @@ def plot_Nr_r_CAH(input_params=KimKim2011, model="KimKim2011", CAH = [3, 10, 40]
     plt.xlabel(r"$r \ \mathrm{in \ m}$")
     plt.xlim(right = r_max)
     plt.ylim(bottom = 10**(8), top = 10**18)
-    plt.axvline(x=r_e,  label=r"$r_e$")
+    plt.axvline(x=r_e,  label=r"$r_{\mathrm{e}}$")
     plt.legend()
     plt.show()
     return fig        

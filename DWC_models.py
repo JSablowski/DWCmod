@@ -108,9 +108,9 @@ def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10, \
         Q_drop_N = Q_drop(r) * N(r)
         return Q_drop_N
     # optional boundaries for integration
-    if not r_lower:
-        r_lower = r_min
-    if not r_upper:
+    if (not r_lower or r_lower<r_min):
+        r_lower = r_min        
+    if (not r_upper or r_upper>r_max):
         r_upper = r_max
     if r_lower < r_e:    
         q_n, q_n_interr = integrate.quad(Q_drop_n, r_lower, r_e)
