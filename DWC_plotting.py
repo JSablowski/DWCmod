@@ -316,7 +316,7 @@ def plot_Nr_r_Ns(input_params=KimKim2011, model="KimKim2011", N_s = [2.5, 25, 25
         N = [N(x) for x in r_N]
         r_ges = np.append(r_n, r_N)
         n_ges = np.append(n, N)
-        axs.append(plt.loglog(r_ges , n_ges, label=r"$N_{\mathrm{s}}=$" + str(y) + r"$\cdot 10^9 \ \rm{m}^{-2}$"))  
+        axs.append(plt.loglog(r_ges , n_ges, label=r"$N_{\mathrm{s}}=$" + str('%.1e' % (y * 10**9)) + r"$\ \rm{m}^{-2}$"))  
         #axs.append(plt.axvline(x=r_e,  label=r"$r_e$ (" + str(y) + ")"))
     plt.ylabel(r"$n(r) \ \mathrm{and} \ N(r) \ \mathrm{in \ m^{-3}}$")
     plt.xlabel(r"$r \ \mathrm{in \ m}$")
@@ -388,7 +388,7 @@ def plot_q_deltaTsub_Ns(input_params=KimKim2011, model="KimKim2011", N_s = [150,
         for x in deltaT_sub:
             input_params["deltaT_sub"]=x      
             q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(deltaT_sub, q, label=r"$N_{\mathrm{s}} =$" + str(input_params["N_s"]) + r"$\ \cdot 10^9 \ \mathrm{m^{-2}}$"))
+        axs.append(plt.plot(deltaT_sub, q, label=r"$N_{\mathrm{s}} =$" + str('%.1e' % (y * 10**9)) + r"$\ \mathrm{m^{-2}}$"))
     plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
     plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
     plt.legend()  
