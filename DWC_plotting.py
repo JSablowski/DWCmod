@@ -316,7 +316,7 @@ def plot_Nr_r_Ns(input_params=KimKim2011, model="KimKim2011", N_s = [2.5, 25, 25
         N = [N(x) for x in r_N]
         r_ges = np.append(r_n, r_N)
         n_ges = np.append(n, N)
-        axs.append(plt.loglog(r_ges , n_ges, label=r"$N_s=$" + str(y) + r"$\cdot 10^9 \ \rm{m}^{-2}$"))  
+        axs.append(plt.loglog(r_ges , n_ges, label=r"$N_{\mathrm{s}}=$" + str(y) + r"$\cdot 10^9 \ \rm{m}^{-2}$"))  
         #axs.append(plt.axvline(x=r_e,  label=r"$r_e$ (" + str(y) + ")"))
     plt.ylabel(r"$n(r) \ \mathrm{and} \ N(r) \ \mathrm{in \ m^{-3}}$")
     plt.xlabel(r"$r \ \mathrm{in \ m}$")
