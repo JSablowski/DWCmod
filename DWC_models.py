@@ -112,12 +112,18 @@ def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10, \
         r_lower = r_min        
     if (not r_upper or r_upper>r_max):
         r_upper = r_max
-    if r_lower < r_e:    
-        q_n, q_n_interr = integrate.quad(Q_drop_n, r_lower, r_e)
+    if r_lower < r_e:   
+        if r_upper > r_e:
+            q_n, q_n_interr = integrate.quad(Q_drop_n, r_lower, r_e)
+        else:
+            q_n, q_n_interr = integrate.quad(Q_drop_n, r_lower, r_upper)    
     else:
         q_n = 0
     if r_upper > r_e:
-        q_N, q_N_interr = integrate.quad(Q_drop_N, r_e, r_upper)        
+        if r_lower < r_e:
+            q_N, q_N_interr = integrate.quad(Q_drop_N, r_e, r_upper)  
+        else:
+            q_N, q_N_interr = integrate.quad(Q_drop_N, r_lower, r_upper)
     else:
         q_N = 0
     q = q_n + q_N
