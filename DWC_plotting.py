@@ -388,7 +388,7 @@ def plot_q_deltaTsub_Ns(input_params=KimKim2011, model="KimKim2011", N_s = [150,
         for x in deltaT_sub:
             input_params["deltaT_sub"]=x      
             q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(deltaT_sub, q, label=r"$N_s =$" + str(input_params["N_s"]) + r"$\ \cdot 10^9 \ \mathrm{m^{-2}}$"))
+        axs.append(plt.plot(deltaT_sub, q, label=r"$N_{\mathrm{s}} =$" + str(input_params["N_s"]) + r"$\ \cdot 10^9 \ \mathrm{m^{-2}}$"))
     plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
     plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
     plt.legend()  
