@@ -130,7 +130,7 @@ def plot_Rdrop(input_params=KimKim2011, model="KimKim2011"):
     plt.plot(l_radius, R_curv, label=r"$R_{\mathrm{curvature}}$")
     plt.plot(l_radius, R_cond, label=r"$R_{\mathrm{conduction}}$")
     plt.plot(l_radius, R_coat, label=r"$R_{\mathrm{coating}}$")
-    plt.axvline(x=r_e,  label=r"$r_e$")
+    plt.axvline(x=r_e,  label=r"$r_{\mathrm{e}}$")
     plt.yscale("log")
     plt.xscale("log")
     plt.legend()
