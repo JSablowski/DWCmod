@@ -125,12 +125,12 @@ def plot_Rdrop(input_params=KimKim2011, model="KimKim2011"):
                                     Theta=input_params["Theta"]))
         R_curv.append(DWCmod.R_curv(deltaT_sub=input_params["deltaT_sub"], r_min=r_min, radius=radius,
                                     Q_drop=Q_drop(radius)))
-    plt.plot(l_radius, R_total, "--", label=r"$R_{\mathrm{total}}$")
+    plt.plot(l_radius, R_total, "-.", label=r"$R_{\mathrm{total}}$")
     plt.plot(l_radius, R_iphase, label=r"$R_{\mathrm{interphase}}$")
     plt.plot(l_radius, R_curv, label=r"$R_{\mathrm{curvature}}$")
     plt.plot(l_radius, R_cond, label=r"$R_{\mathrm{conduction}}$")
     plt.plot(l_radius, R_coat, label=r"$R_{\mathrm{coating}}$")
-    plt.axvline(x=r_e,  label=r"$r_{\mathrm{e}}$")
+    plt.axvline(x=r_e, linestyle="--", label=r"$r_{\mathrm{e}}$")
     plt.yscale("log")
     plt.xscale("log")
     plt.legend()
@@ -247,8 +247,7 @@ def plot_Nr_r_theta(input_params=KimKim2011, model="KimKim2011", theta=[90, 120,
     plt.xlabel(r"$r \ \mathrm{in \ m}$")
     plt.xlim(right=r_max)
     plt.ylim(bottom=10**8, top=10**18)
-    plt.axvline(x=r_e,  label=r"$r_{\mathrm{e}}$")
-    plt.legend()
+    plt.axvline(x=r_e, linestyle="--", label=r"$r_{\mathrm{e}}$")
     plt.show()
     return fig             
 
