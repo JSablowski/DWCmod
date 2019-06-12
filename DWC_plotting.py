@@ -375,7 +375,7 @@ def plot_q_deltaTsub(input_params=KimKim2011, model="KimKim2011", **kwargs):
 
 
 def plot_q_deltaTsub_medium(input_params=KimKim2011, model="KimKim2011",
-                            medium=["Water", "Ammonia", "Ethanol", "n-Pentane"], filmwise=False):
+                            medium=["Water", "Ammonia", "Ethanol"], filmwise=False):
     """ plot the heat flux vs. the surface subcooling temperature for specific condensing fluids.
 
     Parameters
@@ -404,7 +404,8 @@ def plot_q_deltaTsub_medium(input_params=KimKim2011, model="KimKim2011",
             q_fw.append(DWCmod.q_filmwise(**input_params)/1000)
         axs.append(plt.plot(deltaT_sub, q, label=y))
         if filmwise:
-            axs.append(plt.plot(deltaT_sub, q_fw, linestyle="--", label=y + " film"))
+            color = axs[-1][0].get_color()
+            axs.append(plt.plot(deltaT_sub, q_fw, color=color, linestyle="--", label=y + " film"))
     plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
     plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
     plt.legend()
