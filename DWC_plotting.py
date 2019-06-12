@@ -401,7 +401,7 @@ def plot_q_deltaTsub_medium(input_params=KimKim2011, model="KimKim2011",
         for x in deltaT_sub:
             input_params["deltaT_sub"] = x
             q.append(DWC(**input_params)[0]/1000)
-            q_fw.append(DWCmod.q_filmwise(**input_params)/1000)
+            q_fw.append(DWCmod.q_filmwise(**input_params, H=0.010)/1000)
         axs.append(plt.plot(deltaT_sub, q, label=y))
         if filmwise:
             color = axs[-1][0].get_color()
