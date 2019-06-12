@@ -347,3 +347,21 @@ def h_i_Schrage(R_s, T_sat, h_fg, rho_g, sigma_c=1):
     v_g = 1/rho_g
     h_i = 2*sigma_c/(2-sigma_c) * math.sqrt(1/(2*math.pi*R_s*T_sat)) * h_fg**2/(T_sat * v_g)
     return h_i
+
+def q_filmwise(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10,
+               Theta_a=None, Theta_r=None, k_coat=15, delta_coat=0, h_i=None,
+               c=1, N_s=250, H=0.010):
+    """ calculates heat flux during filmvise condensation according to "Nusseltsche Wasserhauttheorie",
+    Equation 4.13 in: H. D. Baehr and K. Stephan, Wärme- und Stoffübertragung,
+    8th ed. Berlin, Heidelberg: Springer Berlin Heidelberg, 2013. Equation 4.13
+    """
+    g = 9.81    														            # gravitational acceleration in m/s²
+    # fluid properties
+    _, _, _, _, _, theta_s, _, lambda_l, delta_h_v, rho_l, g, _, rho_g \
+        = init_parameters(Theta_a=Theta_a, Theta_r=Theta_r, Theta=Theta,
+                            CAH=CAH, p_steam=p_steam, h_i=h_i, medium=medium, N_s=N_s)
+    eta_l = PropsSI("viscosity", "P", p_steam*100, "Q", 0, medium)
+    theta_0 = theta_s - deltaT_sub
+    alpha_m = 0.943 * ((rho_l * (rho_l-rho_g) * g * delta_h_v * lambda_l**3) / (eta_l * (theta_s-theta_0) * H))**0.25
+    q = alpha_m * deltaT_sub
+    return q
