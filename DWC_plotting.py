@@ -358,6 +358,7 @@ def plot_q_deltaTsub(input_params=KimKim2011, model="KimKim2011", **kwargs):
     CAH = kwargs.get("CAH")
     N_s = kwargs.get("N_s")
     medium = kwargs.get("medium")
+    filmwise = kwargs.get("filmwise")
     if c:
         fig = plot_q_deltaTsub_c(input_params, model, c=c)
     elif h_i:
@@ -367,14 +368,14 @@ def plot_q_deltaTsub(input_params=KimKim2011, model="KimKim2011", **kwargs):
     elif N_s:
         fig = plot_q_deltaTsub_Ns(input_params, model, N_s=N_s)
     elif medium:
-        fig = plot_q_deltaTsub_medium(input_params, model, medium = medium)
+        fig = plot_q_deltaTsub_medium(input_params, model, medium=medium, filmwise=filmwise)
     else:
         fig = plot_q_deltaTsub_theta(input_params, model, theta=theta)
     return fig
 
 
 def plot_q_deltaTsub_medium(input_params=KimKim2011, model="KimKim2011",
-                            medium=["Water", "Ammonia", "Ethanol", "n-Pentane"]):
+                            medium=["Water", "Ammonia", "Ethanol", "n-Pentane"], filmwise=False):
     """ plot the heat flux vs. the surface subcooling temperature for specific condensing fluids.
 
     Parameters
@@ -385,6 +386,8 @@ def plot_q_deltaTsub_medium(input_params=KimKim2011, model="KimKim2011",
                     name of the model that should be used
     medium:         list of strings
                     fluids, must be included in CoolProp library
+    filmwise:       bool
+                    calculate filmwise condensation for comparison if true
     """
     DWC = choose_model(model)
     input_params = input_params.copy()      # avoid changing global input_params
@@ -394,10 +397,14 @@ def plot_q_deltaTsub_medium(input_params=KimKim2011, model="KimKim2011",
     for y in medium:
         input_params["medium"] = y
         q = []
+        q_fw = []
         for x in deltaT_sub:
             input_params["deltaT_sub"] = x
             q.append(DWC(**input_params)[0]/1000)
+            q_fw.append(DWCmod.q_filmwise(**input_params)/1000)
         axs.append(plt.plot(deltaT_sub, q, label=y))
+        if filmwise:
+            axs.append(plt.plot(deltaT_sub, q_fw, linestyle="--", label=y + " film"))
     plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
     plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
     plt.legend()
