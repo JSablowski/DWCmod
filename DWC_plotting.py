@@ -140,10 +140,10 @@ def plot_Rdrop(input_params=KimKim2011, model="KimKim2011"):
     plt.show()
     return fig
 
-
+# TODO rewrite plotting functions similar to plot_q_deltaTsub()
 def plot_q_theta(input_params=KimKim2011, model="KimKim2011", **kwargs):
     """ wrapper function to plot the heat flux vs. the contact angle 
-    
+
     Parameters
     ----------
     input_params:   dict
@@ -360,209 +360,73 @@ def plot_q_deltaTsub(input_params=KimKim2011, model="KimKim2011", **kwargs):
     medium = kwargs.get("medium")
     filmwise = kwargs.get("filmwise")
     if c:
-        fig = plot_q_deltaTsub_c(input_params, model, c=c)
+        fig = plot_q_deltaTsub_var(input_params, model, var=c, varname="c", filmwise=filmwise)
     elif h_i:
-        fig = plot_q_deltaTsub_h_i(input_params, model, h_i=h_i)
+        fig = plot_q_deltaTsub_var(input_params, model, var=h_i, varname="h_i", filmwise=filmwise)
     elif CAH:
-        fig = plot_q_deltaTsub_CAH(input_params, model, CAH=CAH)
+        fig = plot_q_deltaTsub_var(input_params, model, var=CAH, varname="CAH", filmwise=filmwise)
     elif N_s:
-        fig = plot_q_deltaTsub_Ns(input_params, model, N_s=N_s)
+        fig = plot_q_deltaTsub_var(input_params, model, var=N_s, varname="N_s", filmwise=filmwise)
     elif medium:
-        fig = plot_q_deltaTsub_medium(input_params, model, medium=medium, filmwise=filmwise)
+        fig = plot_q_deltaTsub_var(input_params, model, var=medium, varname="medium", filmwise=filmwise)
     else:
-        fig = plot_q_deltaTsub_theta(input_params, model, theta=theta)
+        fig = plot_q_deltaTsub_var(input_params, model, var=theta, varname="Theta", filmwise=filmwise)
     return fig
 
 
-def plot_q_deltaTsub_medium(input_params=KimKim2011, model="KimKim2011",
-                            medium=["Water", "Ammonia", "Ethanol"], filmwise=False):
-    """ plot the heat flux vs. the surface subcooling temperature for specific condensing fluids.
+def labelnames_q_deltaTsub(varname):
+    """ defines lambda functions for naming the labels in plot_q_deltaTsub according to kwargs"""
+    if varname == "medium":
+        return lambda y : str(y)
+    if varname == "c":
+        return lambda y : "$c = $" + str(y)
+    if varname == "h_i":
+        return lambda y : "$h_{\mathrm{i}} = $" + str(y) + " MW/m²K"
+    if varname == "CAH":
+        return lambda y : "CAH = " + str(y) + "°"
+    if varname == "N_s":
+        return lambda y : "$N_{\mathrm{s}} =$" + str('%.1e' % (y * 10**9)) + "$\ \mathrm{m^{-2}}$"
+    if varname == "Theta":
+        return lambda y : str(y) + "°"
+    else:
+        return lambda y: str(y)
+
+
+def plot_q_deltaTsub_var(input_params=KimKim2011, model="KimKim2011", var=[90], varname="Theta", filmwise=False):
+    """ plot the heat flux vs. the surface subcooling temperature, optional: vary one additional parameter
 
     Parameters
     ----------
     input_params:   dict
                     input parameters for the DWC model
-    model:          str
-                    name of the model that should be used
-    medium:         list of strings
-                    fluids, must be included in CoolProp library
+    var:            list
+                    list with values for the addtional parameter
+    varname:        string
+                    name of the additional parameter according to input_params
     filmwise:       bool
                     calculate filmwise condensation for comparison if true
     """
+    label = labelnames_q_deltaTsub(varname)
     DWC = choose_model(model)
     input_params = input_params.copy()      # avoid changing global input_params
     deltaT_sub = np.linspace(0.1, 10, 20)
     axs = []
     fig = plt.figure()
-    for y in medium:
-        input_params["medium"] = y
+    for y in var:
+        input_params[varname] = y
         q = []
         q_fw = []
         for x in deltaT_sub:
             input_params["deltaT_sub"] = x
             q.append(DWC(**input_params)[0]/1000)
             q_fw.append(DWCmod.q_filmwise(**input_params, H=0.010)/1000)
-        axs.append(plt.plot(deltaT_sub, q, label=y))
+        axs.append(plt.plot(deltaT_sub, q, label=label(y)))
         if filmwise:
             color = axs[-1][0].get_color()
-            axs.append(plt.plot(deltaT_sub, q_fw, color=color, linestyle="--", label=y + " film"))
+            axs.append(plt.plot(deltaT_sub, q_fw, color=color, linestyle="--", label=label(y) + " film"))
     plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
     plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
     plt.legend()
-    return fig
-
-
-def plot_q_deltaTsub_Ns(input_params=KimKim2011, model="KimKim2011", N_s=[150, 250, 350]):
-    """ plot the heat flux vs. the surface subcooling temperature for specific nucleation site densities.
-
-    Parameters
-    ----------
-    input_params:   dict
-                    input parameters for the DWC model
-    model:          str
-                    name of the model that should be used
-    N_s:            list of floats
-                    number of nucleation sites per unit area in 10^9 1/m² for which a graph should be drawn
-    """
-    DWC = choose_model(model)
-    input_params = input_params.copy()      # avoid changing global input_params
-    deltaT_sub = np.linspace(0.1, 10, 20)
-    axs = []
-    fig = plt.figure()
-    for y in N_s:
-        input_params["N_s"] = y
-        q = []
-        for x in deltaT_sub:
-            input_params["deltaT_sub"] = x
-            q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(deltaT_sub, q,
-                            label=r"$N_{\mathrm{s}} =$" + str('%.1e' % (y * 10**9)) + r"$\ \mathrm{m^{-2}}$"))
-    plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
-    plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
-    plt.legend()  
-    return fig
-
-
-def plot_q_deltaTsub_CAH(input_params=KimKim2011, model="KimKim2011", CAH=[5, 10, 30]):
-    """ plot the heat flux vs. the surface subcooling temperature for specific contact angle hystereses.
-
-    Parameters
-    ----------
-    input_params:   dict
-                    input parameters for the DWC model
-    model:          str
-                    name of the model that should be used
-    theta:          list of floats
-                    contact angle hystereses in deg for which a graph should be drawn
-    """
-    DWC = choose_model(model)
-    input_params = input_params.copy()      # avoid changing global input_params
-    deltaT_sub = np.linspace(0.1, 10, 20)
-    axs = []
-    fig = plt.figure()
-    for y in CAH:
-        input_params["CAH"] = y
-        q = []
-        for x in deltaT_sub:
-            input_params["deltaT_sub"] = x
-            q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(deltaT_sub, q, label="CAH = " + str(input_params["CAH"]) + "°"))
-    plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
-    plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
-    plt.legend()  
-    return fig
-
-
-def plot_q_deltaTsub_theta(input_params=KimKim2011, model="KimKim2011", theta=[90, 120, 150]):
-    """ plot the heat flux vs. the surface subcooling temperature for specific contact angles.
-
-    Parameters
-    ----------
-    input_params:   dict
-                    input parameters for the DWC model
-    model:          str
-                    name of the model that should be used
-    theta:          list of floats
-                    contact angles in deg for which a graph should be drawn
-    """
-    DWC = choose_model(model)
-    input_params = input_params.copy()      # avoid changing global input_params
-    deltaT_sub = np.linspace(0.1, 10, 20)
-    axs = []
-    fig = plt.figure()
-    for y in theta:
-        input_params["Theta"] = y
-        q = []
-        for x in deltaT_sub:
-            input_params["deltaT_sub"] = x
-            q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(deltaT_sub, q, label=r"$\theta = $" + str(input_params["Theta"]) + "°"))
-    plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
-    plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
-    plt.legend()  
-    # plt.show()
-    return fig
-
-
-def plot_q_deltaTsub_c(input_params=KimKim2011, model="KimKim2011", c=[0.1, 0.5, 0.8, 1]):
-    """ plot the heat flux vs. the surface subcooling temperature for specific constants c.
-
-    Parameters
-    ----------
-    input_params:   dict
-                    input parameters for the DWC model
-    model:          str
-                    name of the model that should be used
-    c:              list of floats
-                    constants c for which a graph should be drawn 
-    """
-    DWC = choose_model(model)
-    input_params = input_params.copy()      # avoid changing global input_params
-    deltaT_sub = np.linspace(0.1, 10, 20)
-    axs = []
-    fig = plt.figure()
-    for y in c:
-        input_params["c"] = y
-        q = []
-        for x in deltaT_sub:
-            input_params["deltaT_sub"] = x
-            q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(deltaT_sub, q, label=r"$c = $" + str(input_params["c"])))
-    plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
-    plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
-    plt.legend()  
-    plt.show()
-    return fig
-
-
-def plot_q_deltaTsub_h_i(input_params=KimKim2011, model="KimKim2011", h_i=[0.1, 0.5, 1, 5, 16]):
-    """ plot the heat flux vs. the surface subcooling temperature for specific interfacial heat transfer coefficients.
-
-    Parameters
-    ----------
-    input_params:   dict
-                    input parameters for the DWC model
-    model:          str
-                    name of the model that should be used
-    h_i:            list of floats
-                    interfacial heat transfer coefficients in MW/m²K for which a graph should be drawn
-    """
-    DWC = choose_model(model)
-    input_params = input_params.copy()      # avoid changing global input_params
-    deltaT_sub = np.linspace(0.1, 10, 20)
-    axs = []
-    fig = plt.figure()
-    for y in h_i:
-        input_params["h_i"] = y
-        q = []
-        for x in deltaT_sub:
-            input_params["deltaT_sub"] = x
-            q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(deltaT_sub, q, label=r"$h_i = $" + str(input_params["h_i"]) + " MW/m²K"))
-    plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
-    plt.xlabel(r"$\Delta T \ \mathrm{in \ K}$")
-    plt.legend()  
-    plt.show()
     return fig
 
 
@@ -575,7 +439,4 @@ def plot_all(input_params=KimKim2011, model="KimKim2011"):
     plot_Nr_r_theta(input_params, model)
     plot_Nr_r_CAH(input_params, model)
     plot_q_deltaTsub(input_params, model)
-    plot_q_deltaTsub_theta(input_params, model)
-    plot_q_deltaTsub_c(input_params, model)
-    plot_q_deltaTsub_h_i(input_params, model)
     print_results(input_params, model)
