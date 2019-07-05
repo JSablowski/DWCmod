@@ -207,15 +207,33 @@ def plot_Nr_r(input_params=KimKim2011, model="KimKim2011", **kwargs):
     CAH = kwargs.get("CAH")
     N_s = kwargs.get("N_s")
     if CAH:
-        fig = plot_Nr_r_CAH(input_params, model, CAH=CAH)    
+        fig = plot_Nr_r_var(input_params, model, var=CAH, varname="CAH")
     elif N_s:
-        fig = plot_Nr_r_Ns(input_params, model, N_s=N_s) 
+        fig = plot_Nr_r_var(input_params, model, var=N_s, varname="N_s",)
     else:
-        fig = plot_Nr_r_theta(input_params, model, theta=theta)    
+        fig = plot_Nr_r_var(input_params, model, var=theta, varname="Theta")
     return fig
 
 
-def plot_Nr_r_theta(input_params=KimKim2011, model="KimKim2011", theta=[90, 120, 150]):
+def labelnames(varname):
+    """ defines lambda functions for naming the labels according to kwargs"""
+    if varname == "medium":
+        return lambda y : str(y)
+    if varname == "c":
+        return lambda y : "$c = $" + str(y)
+    if varname == "h_i":
+        return lambda y : "$h_{\mathrm{i}} = $" + str(y) + " MW/m²K"
+    if varname == "CAH":
+        return lambda y : "CAH = " + str(y) + "°"
+    if varname == "N_s":
+        return lambda y : "$N_{\mathrm{s}} =$" + str('%.1e' % (y * 10**9)) + "$\ \mathrm{m^{-2}}$"
+    if varname == "Theta":
+        return lambda y : r"$\theta =$" + str(y) + "°"
+    else:
+        return lambda y: str(y)
+
+
+def plot_Nr_r_var(input_params=KimKim2011, model="KimKim2011", var=[90], varname="Theta"):
     """ plot the drop size distribution for specific contact angles.
 
     Parameters
@@ -225,14 +243,15 @@ def plot_Nr_r_theta(input_params=KimKim2011, model="KimKim2011", theta=[90, 120,
     model:          str
                     name of the model that should be used
     thetas:         list of floats
-                    contact angles in deg for which a graph should be drawn                
-    """ 
+                    contact angles in deg for which a graph should be drawn
+    """
+    label = labelnames(varname)
     DWC = choose_model(model)
     input_params = input_params.copy()      # avoid changing global input_params
     axs = []
     fig = plt.figure()
-    for y in theta:
-        input_params["Theta"] = y
+    for y in var:
+        input_params[varname] = y
         q, q_n, q_N, r_min, r_e, r_max, Q_drop, n, N = DWC(**input_params)
         r_n = np.linspace(r_min, r_e, 50)
         r_n = r_n[1:]
@@ -242,92 +261,15 @@ def plot_Nr_r_theta(input_params=KimKim2011, model="KimKim2011", theta=[90, 120,
         N = [N(x) for x in r_N]
         r_ges = np.append(r_n, r_N)
         n_ges = np.append(n, N)
-        axs.append(plt.loglog(r_ges, n_ges, label=r"$\theta =$" + str(input_params["Theta"]) + "°"))
+        axs.append(plt.loglog(r_ges, n_ges, label=label(y)))
     plt.ylabel(r"$n(r) \ \mathrm{and} \ N(r) \ \mathrm{in \ m^{-3}}$")
     plt.xlabel(r"$r \ \mathrm{in \ m}$")
     plt.xlim(right=r_max)
     plt.ylim(bottom=10**8, top=10**18)
     plt.axvline(x=r_e, linestyle="--", label=r"$r_{\mathrm{e}}$")
-    plt.show()
-    return fig             
-
-
-def plot_Nr_r_CAH(input_params=KimKim2011, model="KimKim2011", CAH=[3, 10, 40]):
-    """ plot the drop size distribution for specific contact angle hystereses.
-
-    Parameters
-    ----------
-    input_params:   dict
-                    input parameters for the DWC model
-    model:          str
-                    name of the model that should be used
-    CAH:            list of floats
-                    contact angles hystereses in deg for which a graph should be drawn
-    """ 
-    DWC = choose_model(model)
-    input_params = input_params.copy()      # avoid changing global input_params
-    axs = []
-    fig = plt.figure()
-    for y in CAH:
-        input_params["CAH"] = y
-        q, q_n, q_N, r_min, r_e, r_max, Q_drop, n, N = DWC(**input_params)
-        r_n = np.linspace(r_min, r_e, 50)
-        r_n = r_n[1:]
-        n = [n(x) for x in r_n]
-        r_N = np.linspace(r_e, r_max, 50)
-        r_N = r_N[1:]
-        N = [N(x) for x in r_N]
-        r_ges = np.append(r_n, r_N)
-        n_ges = np.append(n, N)
-        axs.append(plt.loglog(r_ges, n_ges, label="CAH = " + str(input_params["CAH"]) + "°"))
-    plt.ylabel(r"$n(r) \ \mathrm{and} \ N(r) \ \mathrm{in \ m^{-3}}$")
-    plt.xlabel(r"$r \ \mathrm{in \ m}$")
-    plt.xlim(right=r_max)
-    plt.ylim(bottom=10**8, top=10**18)
-    plt.axvline(x=r_e,  label=r"$r_{\mathrm{e}}$")
     plt.legend()
     plt.show()
-    return fig        
-
-
-def plot_Nr_r_Ns(input_params=KimKim2011, model="KimKim2011", N_s=[2.5, 25, 250, 2500]):
-    """ plot the drop size distribution for specific contact angle hystereses.
-
-    Parameters
-    ----------
-    input_params:   dict
-                    input parameters for the DWC model
-    model:          str
-                    name of the model that should be used
-    N_s:            list of floats
-                    nucleation site densities for which a graph should be drawn
-                    in 10^9 1/m² 
-    """ 
-    DWC = choose_model(model)
-    input_params = input_params.copy()      # avoid changing global input_params
-    axs = []
-    fig = plt.figure()
-    for y in N_s:
-        input_params["N_s"] = y
-        q, q_n, q_N, r_min, r_e, r_max, Q_drop, n, N = DWC(**input_params)
-        r_n = np.linspace(r_min, r_e, 50)
-        r_n = r_n[1:]
-        n = [n(x) for x in r_n]
-        r_N = np.linspace(r_e, r_max, 50)
-        r_N = r_N[1:]
-        N = [N(x) for x in r_N]
-        r_ges = np.append(r_n, r_N)
-        n_ges = np.append(n, N)
-        axs.append(plt.loglog(r_ges, n_ges,
-                              label=r"$N_{\mathrm{s}}=$" + str('%.1e' % (y * 10**9)) + r"$\ \rm{m}^{-2}$"))
-        # axs.append(plt.axvline(x=r_e,  label=r"$r_e$ (" + str(y) + ")"))
-    plt.ylabel(r"$n(r) \ \mathrm{and} \ N(r) \ \mathrm{in \ m^{-3}}$")
-    plt.xlabel(r"$r \ \mathrm{in \ m}$")
-    plt.xlim(right=r_max)
-    plt.ylim(bottom=10**8, top=10**18)
-    plt.legend()
-    plt.show()
-    return fig        
+    return fig
 
 
 def plot_q_deltaTsub(input_params=KimKim2011, model="KimKim2011", **kwargs):
@@ -374,24 +316,6 @@ def plot_q_deltaTsub(input_params=KimKim2011, model="KimKim2011", **kwargs):
     return fig
 
 
-def labelnames_q_deltaTsub(varname):
-    """ defines lambda functions for naming the labels in plot_q_deltaTsub according to kwargs"""
-    if varname == "medium":
-        return lambda y : str(y)
-    if varname == "c":
-        return lambda y : "$c = $" + str(y)
-    if varname == "h_i":
-        return lambda y : "$h_{\mathrm{i}} = $" + str(y) + " MW/m²K"
-    if varname == "CAH":
-        return lambda y : "CAH = " + str(y) + "°"
-    if varname == "N_s":
-        return lambda y : "$N_{\mathrm{s}} =$" + str('%.1e' % (y * 10**9)) + "$\ \mathrm{m^{-2}}$"
-    if varname == "Theta":
-        return lambda y : str(y) + "°"
-    else:
-        return lambda y: str(y)
-
-
 def plot_q_deltaTsub_var(input_params=KimKim2011, model="KimKim2011", var=[90], varname="Theta", filmwise=False):
     """ plot the heat flux vs. the surface subcooling temperature, optional: vary one additional parameter
 
@@ -406,7 +330,7 @@ def plot_q_deltaTsub_var(input_params=KimKim2011, model="KimKim2011", var=[90], 
     filmwise:       bool
                     calculate filmwise condensation for comparison if true
     """
-    label = labelnames_q_deltaTsub(varname)
+    label = labelnames(varname)
     DWC = choose_model(model)
     input_params = input_params.copy()      # avoid changing global input_params
     deltaT_sub = np.linspace(0.1, 10, 20)
