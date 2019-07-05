@@ -360,7 +360,5 @@ def plot_all(input_params=KimKim2011, model="KimKim2011"):
     plot_q_theta(input_params, model)
     plot_q_theta_CAH(input_params, model)
     plot_Nr_r(input_params, model)
-    plot_Nr_r_theta(input_params, model)
-    plot_Nr_r_CAH(input_params, model)
     plot_q_deltaTsub(input_params, model)
     print_results(input_params, model)
