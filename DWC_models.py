@@ -342,7 +342,8 @@ def r_max_KimKim(c, Theta_r, Theta_a, Theta, sigma, rho, g):
 
 def h_i_Schrage(R_s, T_sat, h_fg, rho_g, sigma_c=1):
     """ interfacial heat transfer coefficient as given in
-    Glicksman, L. R., & Hunt Jr., A. W. (1972). Numerical simulation of dropwise condensation. International Journal of Heat and Mass Transfer, 15(11), 2251–2269. https://doi.org/10.1016/0017-9310(72)90046-4
+    Glicksman, L. R., & Hunt Jr., A. W. (1972). Numerical simulation of dropwise condensation. International Journal of
+    Heat and Mass Transfer, 15(11), 2251–2269. https://doi.org/10.1016/0017-9310(72)90046-4
     """
     v_g = 1/rho_g
     h_i = 2*sigma_c/(2-sigma_c) * math.sqrt(1/(2*math.pi*R_s*T_sat)) * h_fg**2/(T_sat * v_g)
@@ -351,7 +352,7 @@ def h_i_Schrage(R_s, T_sat, h_fg, rho_g, sigma_c=1):
 
 def q_filmwise(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10,
                Theta_a=None, Theta_r=None, k_coat=15, delta_coat=0, h_i=None,
-               c=1, N_s=250, H=0.010):
+               c=1, N_s=250, h_fw=0.10):
     """ calculates heat flux during filmvise condensation according to "Nusseltsche Wasserhauttheorie",
     Equation 4.13 in: H. D. Baehr and K. Stephan, Wärme- und Stoffübertragung,
     8th ed. Berlin, Heidelberg: Springer Berlin Heidelberg, 2013. Equation 4.13
@@ -363,6 +364,6 @@ def q_filmwise(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10,
                             CAH=CAH, p_steam=p_steam, h_i=h_i, medium=medium, N_s=N_s)
     eta_l = PropsSI("viscosity", "P", p_steam*100, "Q", 0, medium)
     theta_0 = theta_s - deltaT_sub
-    alpha_m = 0.943 * ((rho_l * (rho_l-rho_g) * g * delta_h_v * lambda_l**3) / (eta_l * (theta_s-theta_0) * H))**0.25
+    alpha_m = 0.943 * ((rho_l * (rho_l-rho_g) * g * delta_h_v * lambda_l**3) / (eta_l * (theta_s-theta_0) * h_fw))**0.25
     q = alpha_m * deltaT_sub
     return q

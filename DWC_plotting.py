@@ -300,23 +300,23 @@ def plot_q_deltaTsub(input_params=KimKim2011, model="KimKim2011", **kwargs):
     CAH = kwargs.get("CAH")
     N_s = kwargs.get("N_s")
     medium = kwargs.get("medium")
-    filmwise = kwargs.get("filmwise")
     if c:
-        fig = plot_q_deltaTsub_var(input_params, model, var=c, varname="c", filmwise=filmwise)
+        fig = plot_q_deltaTsub_var(input_params, model, var=c, varname="c", **kwargs)
     elif h_i:
-        fig = plot_q_deltaTsub_var(input_params, model, var=h_i, varname="h_i", filmwise=filmwise)
+        fig = plot_q_deltaTsub_var(input_params, model, var=h_i, varname="h_i", **kwargs)
     elif CAH:
-        fig = plot_q_deltaTsub_var(input_params, model, var=CAH, varname="CAH", filmwise=filmwise)
+        fig = plot_q_deltaTsub_var(input_params, model, var=CAH, varname="CAH", **kwargs)
     elif N_s:
-        fig = plot_q_deltaTsub_var(input_params, model, var=N_s, varname="N_s", filmwise=filmwise)
+        fig = plot_q_deltaTsub_var(input_params, model, var=N_s, varname="N_s", **kwargs)
     elif medium:
-        fig = plot_q_deltaTsub_var(input_params, model, var=medium, varname="medium", filmwise=filmwise)
+        fig = plot_q_deltaTsub_var(input_params, model, var=medium, varname="medium", **kwargs)
     else:
-        fig = plot_q_deltaTsub_var(input_params, model, var=theta, varname="Theta", filmwise=filmwise)
+        fig = plot_q_deltaTsub_var(input_params, model, var=theta, varname="Theta", **kwargs)
     return fig
 
 
-def plot_q_deltaTsub_var(input_params=KimKim2011, model="KimKim2011", var=[90], varname="Theta", filmwise=False):
+def plot_q_deltaTsub_var(input_params=KimKim2011, model="KimKim2011", var=[90], varname="Theta", filmwise=False,
+                         **kwargs):
     """ plot the heat flux vs. the surface subcooling temperature, optional: vary one additional parameter
 
     Parameters
@@ -333,6 +333,7 @@ def plot_q_deltaTsub_var(input_params=KimKim2011, model="KimKim2011", var=[90], 
     label = labelnames(varname)
     DWC = choose_model(model)
     input_params = input_params.copy()      # avoid changing global input_params
+    h_fw = kwargs.get("h_fw", 0.1)
     deltaT_sub = np.linspace(0.1, 10, 20)
     axs = []
     fig = plt.figure()
@@ -343,7 +344,8 @@ def plot_q_deltaTsub_var(input_params=KimKim2011, model="KimKim2011", var=[90], 
         for x in deltaT_sub:
             input_params["deltaT_sub"] = x
             q.append(DWC(**input_params)[0]/1000)
-            q_fw.append(DWCmod.q_filmwise(**input_params, H=0.010)/1000)
+            if filmwise:
+                q_fw.append(DWCmod.q_filmwise(**input_params, h_fw=h_fw)/1000)
         axs.append(plt.plot(deltaT_sub, q, label=label(y)))
         if filmwise:
             color = axs[-1][0].get_color()
