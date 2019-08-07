@@ -140,7 +140,7 @@ def plot_Rdrop(input_params=KimKim2011, model="KimKim2011"):
     plt.show()
     return fig
 
-# TODO rewrite plotting functions similar to plot_q_deltaTsub()
+
 def plot_q_theta(input_params=KimKim2011, model="KimKim2011", **kwargs):
     """ wrapper function to plot the heat flux vs. the contact angle 
 
@@ -154,11 +154,11 @@ def plot_q_theta(input_params=KimKim2011, model="KimKim2011", **kwargs):
                     contact angles hystereses in deg for which a graph should be drawn
     """
     CAH = kwargs.get("CAH", [input_params["CAH"]])
-    fig = plot_q_theta_CAH(input_params, model, CAH=CAH)    
+    fig = plot_q_theta_var(input_params, model, var=CAH, varname="CAH")
     return fig
 
 
-def plot_q_theta_CAH(input_params=KimKim2011, model="KimKim2011", CAH=[3, 5, 10, 20, 40]):
+def plot_q_theta_var(input_params=KimKim2011, model="KimKim2011", var=[10], varname="CAH"):
     """ plot the heat flux vs. the contact angle for specific contact angle hystereses.
 
     Parameters
@@ -170,22 +170,23 @@ def plot_q_theta_CAH(input_params=KimKim2011, model="KimKim2011", CAH=[3, 5, 10,
     CAH:            list of floats
                     contact angles hystereses in deg for which a graph should be drawn
     """
+    label = labelnames(varname)
     DWC = choose_model(model)
     input_params = input_params.copy()      # avoid changing global input_params
     Theta = np.linspace(20, 160, 40)
     axs = []
     fig = plt.figure()
-    for y in CAH:
-        input_params["CAH"] = y
+    for y in var:
+        input_params[varname] = y
         q = []
         for x in Theta:
             input_params["Theta"] = x
             q.append(DWC(**input_params)[0]/1000)
-        axs.append(plt.plot(Theta, q, label="CAH = " + str(input_params["CAH"]) + "°"))
+        axs.append(plt.plot(Theta, q, label=label(y)))
     plt.ylabel(r"$\.q \ \mathrm{in \ kW/m^2}$")
     plt.xlabel(r"$\theta \ \mathrm{in \ deg}$")
     plt.legend()
-    plt.show()    
+    plt.show()
     return fig
 
 
