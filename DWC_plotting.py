@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 try:
     from . import DWC_models as DWCmod
-except:
+except ImportError:
     import DWC_models as DWCmod
 
 # some input parameters to use as a fallback if no other parameters are given
@@ -30,12 +30,12 @@ KimKim2011 = {"medium": "Water",
               "N_s": 250}
 
 
-def choose_model(modelName):
+def choose_model(model_name):
     """ wrapper to choose DWC model """
-    if modelName == "KimKim2011":
+    if model_name == "KimKim2011":
         DWC_model = DWCmod.KimKim2011
     else:
-        raise BaseException("Model \"" + modelName + "\" is unknown. Please choose one of the implemented models.")
+        raise BaseException("Model \"" + model_name + "\" is unknown. Please choose one of the implemented models.")
     return DWC_model
 
 
