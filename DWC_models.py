@@ -49,9 +49,9 @@ def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10,
                 number of Nucleation sites in 10^9 1/m² 
     print_properties: bool
                 if set to true, calculated fluid properties are printed
-    r_lower: float, optional
+    r_lower:    float, optional
                 sets a lower boundary for the heat flux calculation, only droplets with a larger radii are considered  
-    r_upper: float, optional
+    r_upper:    float, optional
                 sets an upper boundary for the heat flux calculation, only droplets with a smaller radii are considered
     Returns
     ----------
@@ -132,6 +132,11 @@ def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10,
     else:
         q_N = 0
     q = q_n + q_N
+
+    # calculate additional values
+    misc = {}
+    misc["Bo"] = bond_number(r_max, sigma, rho, g)
+
     # optional output of calculated fluid properties
     if print_properties:
         print("\nfluid properties:")
@@ -144,8 +149,8 @@ def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10,
         print("R_s:\t", R_s, "J/(kg*K)")
         print("\ninterfacial heat transfer coefficient:")
         print("h_i: \t ", round(h_i, 1), "W/m²K")
-        print("h_i_calc:", round(h_i_calc, 1), "W/m²K")     
-    return q, q_n, q_N, r_min, r_e, r_max, Q_drop, n, N        
+        print("h_i_calc:", round(h_i_calc, 1), "W/m²K")
+    return q, q_n, q_N, r_min, r_e, r_max, Q_drop, n, N, misc
 
 
 def init_parameters(Theta, CAH, p_steam, h_i, medium, N_s, **kwargs):
@@ -367,3 +372,13 @@ def q_filmwise(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10,
     alpha_m = 0.943 * ((rho_l * (rho_l-rho_g) * g * delta_h_v * lambda_l**3) / (eta_l * (theta_s-theta_0) * h_fw))**0.25
     q = alpha_m * deltaT_sub
     return q
+
+
+def bond_number(r_max, sigma, rho_l, g):
+    """ calculates the Bond number for the largest droplet according to
+    Cha, H.; Vahabi, H.; Wu, A.; Chavan, S.; Kim, M.-K.; Sett, S.; Bosch, S. A.; Wang, W.; Kota, A. K.; Miljkovic, N.
+    Dropwise Condensation on Solid Hydrophilic Surfaces. Science Advances 2020, 6 (2), eaax0746.
+    https://doi.org/10.1126/sciadv.aax0746"""
+    l_y = math.sqrt(sigma / (rho_l*g))
+    bond = r_max**2 / l_y**2
+    return bond

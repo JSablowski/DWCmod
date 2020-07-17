@@ -42,7 +42,7 @@ def choose_model(model_name):
 def print_results(input_params=KimKim2011, model="KimKim2011"):
     """ prints calculated values and results """
     DWC = choose_model(model)
-    q, q_n, q_N, r_min, r_e, r_max, Q_drop, n, N = DWC(print_properties=True, **input_params)
+    q, q_n, q_N, r_min, r_e, r_max, Q_drop, n, N, misc = DWC(print_properties=True, **input_params)
     print("\nresults:")
     print("q:\t", q, "W/m²")
     print("q_n:\t", q_n, "W/m²")
@@ -51,7 +51,9 @@ def print_results(input_params=KimKim2011, model="KimKim2011"):
     print("r_min:\t", r_min, "m")
     print("r_e:\t", r_e, "m")
     print("r_max:\t", r_max, "m")
+    print("misc.:\t", misc)
     print("\nmodel used: ", model)
+
     
     
 def plot_qdrop_theta_r(input_params=KimKim2011, model="KimKim2011", radii=[0.000001, 0.000005, 0.000010]):
@@ -253,7 +255,7 @@ def plot_Nr_r_var(input_params=KimKim2011, model="KimKim2011", var=[90], varname
     fig = plt.figure()
     for y in var:
         input_params[varname] = y
-        q, q_n, q_N, r_min, r_e, r_max, Q_drop, n, N = DWC(**input_params)
+        q, q_n, q_N, r_min, r_e, r_max, Q_drop, n, N, misc = DWC(**input_params)
         r_n = np.linspace(r_min, r_e, 50)
         r_n = r_n[1:]
         n = [n(x) for x in r_n]
