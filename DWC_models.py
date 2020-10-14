@@ -50,7 +50,7 @@ def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10,
     print_properties: bool
                 if set to true, calculated fluid properties are printed
     r_lower:    float, optional
-                sets a lower boundary for the heat flux calculation, only droplets with a larger radii are considered  
+                sets a lower boundary for the heat flux calculation, only droplets with a larger radii are considered
     r_upper:    float, optional
                 sets an upper boundary for the heat flux calculation, only droplets with a smaller radii are considered
     Returns
@@ -79,22 +79,22 @@ def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10,
     r_upper = kwargs.get("r_upper", False)
     # prepare input parameters
     Theta, Theta_a, Theta_r, h_i, N_s, T_sat, sigma, k_c, h_fg, rho, g, R_s, rho_g \
-    = init_parameters(Theta_a=Theta_a, Theta_r=Theta_r, Theta=Theta,
-                      CAH=CAH, p_steam=p_steam, h_i=h_i, medium=medium, N_s=N_s)
+        = init_parameters(Theta_a=Theta_a, Theta_r=Theta_r, Theta=Theta,
+                          CAH=CAH, p_steam=p_steam, h_i=h_i, medium=medium, N_s=N_s)
     # calculate interfacial heat transfer coefficient h_i
     h_i_calc = h_i_Schrage(R_s=R_s, T_sat=T_sat, h_fg=h_fg, rho_g=rho_g, sigma_c=1)
     if not h_i:
         h_i = h_i_calc
     # calculate drop radii
     r_min = r_min_KimKim(T_sat=T_sat, sigma=sigma, h_fg=h_fg,
-                         rho=rho, deltaT_sub=deltaT_sub)                   
-    r_e = r_e_KimKim(N_s)                                               
+                         rho=rho, deltaT_sub=deltaT_sub)
+    r_e = r_e_KimKim(N_s)
     r_max = r_max_KimKim(c=c, Theta_r=Theta_r, Theta_a=Theta_a,
-                         Theta=Theta, sigma=sigma, rho=rho, g=g)        
+                         Theta=Theta, sigma=sigma, rho=rho, g=g)
     # define functions for rate of heat flow through a single droplet and drop size distribution
     Q_drop = partial(Q_drop_KimKim, deltaT_sub=deltaT_sub, r_min=r_min, delta_coat=delta_coat, k_coat=k_coat, k_c=k_c,
                      Theta=Theta, h_i=h_i)
-    Q_drop.__doc__ = "rate of heat flow in W depending on drop radius r in m"  
+    Q_drop.__doc__ = "rate of heat flow in W depending on drop radius r in m"
     n = partial(n_KimKim, deltaT_sub=deltaT_sub, r_min=r_min, delta_coat=delta_coat, k_coat=k_coat, k_c=k_c,
                 Theta=Theta, h_i=h_i, rho=rho, h_fg=h_fg, r_e=r_e, r_max=r_max)
     n.__doc__ = "drop size distribution for small drops depending on drop radius r in m"
@@ -103,30 +103,30 @@ def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10,
 
     # integrate and calculate heat flux density
     def Q_drop_n(r):
-        '''small drops'''
+        """small drops"""
         Q_drop_n = Q_drop(r) * n(r)
         return Q_drop_n
 
     def Q_drop_N(r):
-        '''large drops'''
+        """large drops"""
         Q_drop_N = Q_drop(r) * N(r)
         return Q_drop_N
 
     # optional boundaries for integration
     if (not r_lower or r_lower < r_min):
-        r_lower = r_min        
+        r_lower = r_min
     if (not r_upper or r_upper > r_max):
         r_upper = r_max
-    if r_lower < r_e:   
+    if r_lower < r_e:
         if r_upper > r_e:
             q_n, q_n_interr = integrate.quad(Q_drop_n, r_lower, r_e)
         else:
-            q_n, q_n_interr = integrate.quad(Q_drop_n, r_lower, r_upper)    
+            q_n, q_n_interr = integrate.quad(Q_drop_n, r_lower, r_upper)
     else:
         q_n = 0
     if r_upper > r_e:
         if r_lower < r_e:
-            q_N, q_N_interr = integrate.quad(Q_drop_N, r_e, r_upper)  
+            q_N, q_N_interr = integrate.quad(Q_drop_N, r_e, r_upper)
         else:
             q_N, q_N_interr = integrate.quad(Q_drop_N, r_lower, r_upper)
     else:
@@ -157,7 +157,7 @@ def init_parameters(Theta, CAH, p_steam, h_i, medium, N_s, **kwargs):
     """ converts all input parameters to SI-units, calculates fluid properties using CoolProp
     """
     Theta_a = kwargs.get("Theta_a")
-    Theta_r = kwargs.get("Theta_r")    
+    Theta_r = kwargs.get("Theta_r")
     # calculates advancing and receding contact angles from CAH
     if not Theta_a:
         Theta_a = Theta + 0.5*CAH
@@ -166,15 +166,15 @@ def init_parameters(Theta, CAH, p_steam, h_i, medium, N_s, **kwargs):
     if not Theta_r:
         Theta_r = Theta - 0.5*CAH
         if Theta_r < 0:
-            Theta_r = 0             
+            Theta_r = 0
     # conversion to SI units
     Theta, Theta_a, Theta_r = [math.radians(x) for x in [Theta, Theta_a, Theta_r]]  # deg --> rad
     p_steam = p_steam * 100     												    # mbar --> Pa
     if h_i:
         h_i = h_i * 1000*1000       											    # MW/m²K --> W/m²K
-    N_s = N_s * 1000*1000*1000  												    # 10^9 1/m² -->  1/m² 
+    N_s = N_s * 1000*1000*1000  												    # 10^9 1/m² -->  1/m²
     # fluid properties
-    T_sat = PropsSI("T", "P", p_steam, "Q", 1, medium)                              # boiling temperature in K    
+    T_sat = PropsSI("T", "P", p_steam, "Q", 1, medium)                              # boiling temperature in K
     sigma = PropsSI("surface_tension", "P", p_steam, "Q", 0, medium)                # Surface tension in N/m
     k_c = PropsSI("conductivity", "P", p_steam, "Q", 0, medium)                     # thermal conductivity in W/(mK)
     h_fg = PropsSI("Hmass", "P", p_steam, "Q", 1, medium) - \
@@ -191,14 +191,14 @@ def Q_drop_KimKim(r, deltaT_sub, r_min, delta_coat, k_coat, k_c, Theta, h_i):
     """ rate of heat flow in W """
     Q_drop = (deltaT_sub * math.pi * r**2 * (1 - r_min/r)) / \
         (delta_coat/(k_coat * (math.sin(Theta))**2) + r*Theta/(4*k_c*math.sin(Theta)) + 1/(2*h_i*(1-math.cos(Theta))))
-    return Q_drop  
+    return Q_drop
 
 
 def deltaT_drop_KimKim(r, deltaT_sub, r_min, delta_coat, k_coat, k_c, Theta, h_i):
     """ temperature drop caused by conduction through the drop """
     deltaT_drop = Q_drop_KimKim(r, deltaT_sub, r_min, delta_coat, k_coat, k_c, Theta, h_i) \
         * Theta / (4*math.pi*k_c*math.sin(Theta))
-    return deltaT_drop  
+    return deltaT_drop
 
 
 def R_total(deltaT_sub, Q_drop):
@@ -239,6 +239,7 @@ def R_iphase(h_i, radius, Theta):
     """
     R_iphase = 1 / (2*h_i*1000*1000*math.pi*radius**2*(1-math.cos(math.radians(Theta))))
     return R_iphase
+
 
 def R_cond(k_c, radius, Theta):
     """ thermal resistance due to conduction through a single drop
@@ -304,31 +305,31 @@ def R_curv(deltaT_sub, r_min, radius, Q_drop):
                 thermal resistance due drop curvature in K/W
     """
     R_curv = (deltaT_sub*r_min / radius) / Q_drop
-    return R_curv  
-    
-    
+    return R_curv
+
+
 def n_KimKim(r, deltaT_sub, r_min, delta_coat, k_coat, k_c, Theta, h_i, rho, h_fg, r_e, r_max):
     """ drop size distributions small drops """
     A_1 = deltaT_sub / (2*rho*h_fg)
     A_2 = Theta * (1-math.cos(Theta)) / (4*k_c*math.sin(Theta))
     A_3 = 1/(2*h_i) + delta_coat*(1-math.cos(Theta)) / (k_coat*(math.sin(Theta))**2)
     tau = 3*r_e**2 * (A_2*r_e + A_3)**2 / (A_1*(11*A_2*r_e**2 - 14*A_2*r_e*r_min + 8*A_3*r_e - 11*A_3*r_min))
-    B_1 = A_2/(tau*A_1) * ((r_e**2-r**2)/2 + r_min*(r_e-r) - r_min**2*math.log((r-r_min)/(r_e-r_min))) 
+    B_1 = A_2/(tau*A_1) * ((r_e**2-r**2)/2 + r_min*(r_e-r) - r_min**2*math.log((r-r_min)/(r_e-r_min)))
     B_2 = A_3/(tau*A_1) * (r_e-r - r_min*math.log((r-r_min)/(r_e-r_min)))
     n = 1/(3*math.pi*r_e**3*r_max) * (r_e/r_max)**(-2/3) * r*(r_e-r_min)/(r-r_min) * \
         (A_2*r+A_3)/(A_2*r_e+A_3) * math.exp(B_1+B_2)
-    return n 
+    return n
 
 
 def N_LeFevre(r, r_max):
     """ drop size distributions for large drops """
     N = 1/(3*math.pi*r**2*r_max) * (r/r_max)**(-2/3)
-    return N  
+    return N
 
 
 def r_min_KimKim(T_sat, sigma, h_fg, rho, deltaT_sub):
     """ minimum droplet radius """
-    r_min = 2*T_sat*sigma / (h_fg * rho * deltaT_sub) 	
+    r_min = 2*T_sat*sigma / (h_fg * rho * deltaT_sub)
     return r_min
 
 
@@ -341,7 +342,7 @@ def r_e_KimKim(N_s):
 def r_max_KimKim(c, Theta_r, Theta_a, Theta, sigma, rho, g):
     """ effective maximum drop radius """
     r_max = math.sqrt(6*c*(math.cos(Theta_r)-math.cos(Theta_a))*math.sin(Theta)*sigma / \
-               (math.pi*(2-3*math.cos(Theta)+(math.cos(Theta))**3)*rho*g))
+            (math.pi*(2-3*math.cos(Theta)+(math.cos(Theta))**3)*rho*g))
     return r_max
 
 
