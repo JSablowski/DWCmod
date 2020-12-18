@@ -209,10 +209,13 @@ def plot_Nr_r(input_params=KimKim2011, model="KimKim2011", **kwargs):
     theta = kwargs.get("theta", [input_params["Theta"]])
     CAH = kwargs.get("CAH")
     N_s = kwargs.get("N_s")
-    if CAH:
+    deltaT_sub = kwargs.get("deltaT_sub")
+    if CAH is not None:
         fig = plot_Nr_r_var(input_params, model, var=CAH, varname="CAH")
-    elif N_s:
+    elif N_s is not None:
         fig = plot_Nr_r_var(input_params, model, var=N_s, varname="N_s",)
+    elif deltaT_sub is not None:
+        fig = plot_Nr_r_var(input_params, model, var=deltaT_sub, varname="deltaT_sub",)
     else:
         fig = plot_Nr_r_var(input_params, model, var=theta, varname="Theta")
     return fig
@@ -232,6 +235,8 @@ def labelnames(varname):
         return lambda y : "$N_{\mathrm{s}} =$" + str('%.1e' % (y * 10**9)) + "$\ \mathrm{m^{-2}}$"
     if varname == "Theta":
         return lambda y : r"$\theta =$" + str(y) + "°"
+    if varname == "deltaT_sub":
+        return lambda y : r"$\Delta\vartheta_{\rm{sub}} =$" + str(round(y, 1)) + r"$\ \mathrm{K}$"
     else:
         return lambda y: str(y)
 
@@ -245,8 +250,10 @@ def plot_Nr_r_var(input_params=KimKim2011, model="KimKim2011", var=[90], varname
                     input parameters for the DWC model
     model:          str
                     name of the model that should be used
-    thetas:         list of floats
-                    contact angles in deg for which a graph should be drawn
+    var:            list of floats
+                    list of values for the parameter that should be varied
+    varname:        str
+                    name of the parameter that should be varied
     """
     label = labelnames(varname)
     DWC = choose_model(model)
