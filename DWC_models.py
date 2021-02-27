@@ -136,6 +136,8 @@ def KimKim2011(medium="Water", p_steam=120, deltaT_sub=5, Theta=90, CAH=10,
     # calculate additional values
     misc = {}
     misc["Bo"] = bond_number(r_max, sigma, rho, g)
+    misc["h_i"] = h_i
+    misc["k_c"] = k_c
 
     # optional output of calculated fluid properties
     if print_properties:
@@ -304,7 +306,7 @@ def R_curv(deltaT_sub, r_min, radius, Q_drop):
     R_curv:     float
                 thermal resistance due drop curvature in K/W
     """
-    R_curv = (deltaT_sub*r_min / radius) / Q_drop
+    R_curv = (deltaT_sub * r_min / radius) / Q_drop
     return R_curv
 
 
