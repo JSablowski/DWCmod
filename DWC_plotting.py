@@ -107,7 +107,7 @@ def plot_Rdrop(input_params=KimKim2011, model="KimKim2011"):
     """ plot heat transfer resistances over droplet radius
     """
     DWC = choose_model(model)
-    l_radius = np.linspace(0.00000001, 0.001, 100)
+    l_radius = np.logspace(-8, -3, 100)
     input_params = input_params.copy()                  # avoid changing global input_params    
     k_c = DWCmod.init_parameters(**input_params)[7]     # calculate thermal conductivity of condensate
     fig = plt.figure()
