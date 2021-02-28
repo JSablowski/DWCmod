@@ -263,10 +263,10 @@ def plot_Nr_r_var(input_params=KimKim2011, model="KimKim2011", var=[90], varname
     for y in var:
         input_params[varname] = y
         q, q_n, q_N, r_min, r_e, r_max, Q_drop, n, N, misc = DWC(**input_params)
-        r_n = np.linspace(r_min, r_e, 50)
+        r_n = np.logspace(math.log(r_min, 10), math.log(r_e, 10), 50)
         r_n = r_n[1:]
         n = [n(x) for x in r_n]
-        r_N = np.linspace(r_e, r_max, 50)
+        r_N = np.logspace(math.log(r_e, 10), math.log(r_max, 10), 50)
         r_N = r_N[1:]
         N = [N(x) for x in r_N]
         r_ges = np.append(r_n, r_N)
@@ -274,9 +274,8 @@ def plot_Nr_r_var(input_params=KimKim2011, model="KimKim2011", var=[90], varname
         axs.append(plt.loglog(r_ges, n_ges, label=label(y)))
     plt.ylabel(r"$n(r) \ \mathrm{and} \ N(r) \ \mathrm{in \ m^{-3}}$")
     plt.xlabel(r"$r \ \mathrm{in \ m}$")
-    plt.xlim(right=r_max)
-    plt.ylim(bottom=10**8, top=10**18)
-    plt.axvline(x=r_e, linestyle="--", label=r"$r_{\mathrm{e}}$")
+    if not (varname == "N_s" and len(var) > 1):
+        plt.axvline(x=r_e, linestyle="--", label=r"$r_{\mathrm{e}}$")
     plt.legend()
     plt.show()
     return fig
